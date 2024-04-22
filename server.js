@@ -1,10 +1,18 @@
 var mysql = require("mysql");
 const express = require("express");
+const cors = require("cors");
+
+const corsOptions = {
+  origin: "*",
+  credentials: true, //access-control-allow-credentials:true
+  optionSuccessStatus: 200,
+};
 
 var con = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "1206",
+  port: 3306,
 });
 
 con.connect(function (err) {
@@ -17,13 +25,14 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   host: "localhost",
   user: "root",
-  password: "",
+  password: "1206",
   database: "users",
 });
 
 // Create an Express application
 const app = express();
 
+app.use(cors(corsOptions)); // Use this after the variable declaration
 // Define a route to fetch all users
 app.get("/users", (req, res) => {
   // Execute a query to select all users
@@ -53,6 +62,21 @@ app.get("/users/:id", (req, res) => {
   });
 });
 
+app.get("/users/email/:email", (req, res) => {
+  const userEmail = req.params.email;
+  const query = `SELECT * FROM user WHERE email = ${userEmail}`;
+  pool.query(query, (error, results) => {
+    if (error) {
+      console.error("Error executing query:", error);
+      return res
+        .status(500)
+        .json({ error: "Internal Server Error", details: error });
+    }
+    res.json(results);
+  });
+});
+
+/*
 // Route to fetch user by email
 app.get("/users/email/:email", (req, res) => {
   const userEmail = req.params.email;
@@ -70,7 +94,7 @@ app.get("/users/email/:email", (req, res) => {
       res.json(results);
     }
   );
-});
+});*/
 
 // Start the server
 const PORT = process.env.PORT || 3000;
@@ -81,19 +105,13 @@ app.listen(PORT, () => {
 function getClicked() {
   const query = document.getElementById("firstInput").value;
   console.log("Query: " + query);
-  fetch("http://localhost:3000/email/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email: query }),
-  })
+  fetch(`http://localhost:3000/users/email/${query}`)
     .then((response) => response.json())
     .then((data) => {
-      console.log("Got email:", data);
+      console.log(data);
     })
     .catch((error) => {
-      console.error("Error while getting email:", error);
+      console.error("Помилка:", error);
     });
 }
 
