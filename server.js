@@ -27,6 +27,7 @@ const pool = mysql.createPool({
   user: "root",
   password: "1206",
   database: "users",
+  multipleStatements: true,
 });
 
 // Create an Express application
@@ -64,7 +65,7 @@ app.get("/users/:id", (req, res) => {
 
 app.get("/users/email/:email", (req, res) => {
   const userEmail = req.params.email;
-  const query = `SELECT * FROM user WHERE email = ${userEmail}`;
+  const query = `SELECT * FROM user WHERE email = "${userEmail}"`;
   pool.query(query, (error, results) => {
     if (error) {
       console.error("Error executing query:", error);
@@ -114,10 +115,42 @@ function getClicked() {
       console.error("Помилка:", error);
     });
 }
-
+/*
 function logIn() {
   const email = document.getElementById("emailInput").value;
   console.log("Email: " + email);
   const password = document.getElementById("passwordInput").value;
   console.log("Password: " + password);
+
+  fetch("http://localhost:3000/users/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email: email, password: password }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Logged in:", data);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
 }
+*/
+
+/*
+app.post("/users/login", async (req, res) => {
+  console.log("post");
+  const query = `SELECT * FROM user WHERE email = ${req.body.email} AND username = ${req.body.password}`;
+  pool.query(query, (error, results) => {
+    if (error) {
+      console.error("Error executing query:", error);
+      return res
+        .status(500)
+        .json({ error: "Internal Server Error", details: error });
+    }
+    console.log("Logged in:" + results);
+    res.json(results);
+  });
+});*/
