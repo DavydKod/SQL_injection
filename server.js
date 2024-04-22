@@ -81,6 +81,20 @@ app.listen(PORT, () => {
 function getClicked() {
   const query = document.getElementById("firstInput").value;
   console.log("Query: " + query);
+  fetch("http://localhost:3000/email/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email: query }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Got email:", data);
+    })
+    .catch((error) => {
+      console.error("Error while getting email:", error);
+    });
 }
 
 function logIn() {
